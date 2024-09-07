@@ -1,5 +1,17 @@
 const books = require("./books");
 const { nanoid } = require("nanoid");
+const fs = require("fs");
+const path = require("path");
+const dataFilePath = path.join(__dirname, 'books.js');
+
+//fungsi untuk format data yang ditulis
+const updateData = (newData) => {
+    return  (
+`const books = ${JSON.stringify(newData, null, 2)};
+
+module.exports = books;` 
+    )
+};
 
 //fungsi untuk menambahkan buku
 const addBook = (request, h) => {
@@ -34,6 +46,12 @@ const addBook = (request, h) => {
     const isSuccess = books.filter(book => book.id === id).length > 0;
 
     if (isSuccess) {
+
+        fs.writeFile(dataFilePath, updateData(books), err => {
+            if (err) throw err;
+            console.log('The file has been saved!');
+        });
+
         return h.response({
             status: "success",
             message: "Buku berhasil ditambahkan",
@@ -215,6 +233,11 @@ const editBook = (request, h) => {
             name, year, author, summary, publisher, pageCount, readPage, reading, updatedAt, finished
         };
 
+        fs.writeFile(dataFilePath, updateData(books), err => {
+            if (err) throw err;
+            console.log('The file has been saved!');
+        });
+
         return h.response({
             status: "success",
             message: "Buku berhasil diperbarui"
@@ -234,6 +257,11 @@ const deleteBook = (request, h) => {
 
     if (index !== -1) {
        books.splice(index, 1);
+
+       fs.writeFile(dataFilePath, updateData(books), err => {
+        if (err) throw err;
+        console.log('The file has been saved!');
+    });
 
        return h.response({
         status : "success",
